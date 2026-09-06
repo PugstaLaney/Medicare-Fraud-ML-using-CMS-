@@ -1,0 +1,19 @@
+# Raw data and database live on D: via junctions. Never commit.
+data_raw/
+database/
+*.csv
+*.duckdb
+*.duckdb.wal
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
