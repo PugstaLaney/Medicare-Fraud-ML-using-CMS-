@@ -35,8 +35,8 @@ Raw files and the DuckDB database are not in the repo. See `Docs/data_dictionary
 ## Layout
 
 ```
-analysis_notebooks/data_load     load, explore, build labels table
-analysis_notebooks/02_features   build provider_features
+analysis_notebooks/01_load_and_label   load, explore, build labels table
+analysis_notebooks/02_features         build provider_features
 scripts/build_database.py        rebuild the DuckDB from raw CSVs
 Docs/data_dictionary.md          every raw column, one line each
 ```

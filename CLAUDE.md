@@ -14,7 +14,7 @@ model on real CMS data, then add a small retrieval layer. Portfolio artifact sec
 - `data_raw/` and `database/` are **junctions to D:\Medicare_Fraud_ML\**. Big files stay
   off OneDrive and off the nearly full C: drive. Paths inside the project are unchanged.
 - `scripts/build_database.py` rebuilds `database/medicare_fraud.duckdb` from the three CSVs.
-- `analysis_notebooks/data_load.ipynb` loads, explores, and writes the `labels` table.
+- `analysis_notebooks/01_load_and_label.ipynb` loads, explores, and writes the `labels` table.
 - `analysis_notebooks/02_features.ipynb` builds `provider_features`.
 - `Docs/data_dictionary.md` explains every raw column.
 
@@ -27,7 +27,7 @@ model on real CMS data, then add a small retrieval layer. Portfolio artifact sec
   (median/MAD within provider_type, min group 100, stddev fallback when MAD is 0).
   Service-derived features are null for ~89K providers with no provider_service rows;
   em_high_share is null for ~785K providers who bill no office visits.
-- `labels`: built in data_load.ipynb. label=1 if section 1128(a) or 1128b7 exclusion dated
+- `labels`: built in 01_load_and_label.ipynb. label=1 if section 1128(a) or 1128b7 exclusion dated
   2024 or later; label=0 if never excluded; NULL (dropped) for license-type 1128b4 and
   pre-2024 exclusions.
 
