@@ -38,6 +38,7 @@ Raw files and the DuckDB database are not in the repo. See `Docs/data_dictionary
 analysis_notebooks/01_load_and_label   load, explore, build labels table
 analysis_notebooks/02_features         build provider_features, rule-based flags
 analysis_notebooks/03_evaluation       metrics by hand, checked against sklearn, baseline
+analysis_notebooks/04_unsupervised     isolation forest, scored against labels
 src/metrics.py                         the metric functions later notebooks import
 scripts/build_database.py        rebuild the DuckDB from raw CSVs
 Docs/data_dictionary.md          every raw column, one line each
@@ -54,3 +55,8 @@ After peer adjustment, excluded providers show more services per patient, a high
 high-level office visits, and payment less explained by patient risk. They also bill *closer* to
 the Medicare fee schedule than their peers, not further from it. No single feature separates
 them cleanly, which is the case for a model.
+
+An isolation forest on the peer-adjusted features ranks known-fraud providers above the
+median but puts none in its top 1,000. The most anomalous providers in Medicare are
+legitimate high-volume drug billers. Anomalous is not fraudulent, and unsupervised detection
+alone does not find this kind of fraud.

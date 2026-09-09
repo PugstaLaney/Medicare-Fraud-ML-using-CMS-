@@ -18,6 +18,8 @@ model on real CMS data, then add a small retrieval layer. Portfolio artifact sec
 - `analysis_notebooks/02_features.ipynb` builds `provider_features` (incl. n_extreme, max_abs_z flags).
 - `analysis_notebooks/03_evaluation.ipynb` hand-implements ROC/AUC/precision@k/AP, checks vs sklearn,
   scores the rule-based flags as the baseline.
+- `analysis_notebooks/04_unsupervised_iforest.ipynb` isolation forest on the 16 z-scores + has_em.
+  Writes `scores_iforest` (npi, iforest_score; higher = more anomalous).
 - `src/metrics.py` is the fast version of those functions. Later notebooks `import metrics as M`
   after `sys.path.insert(0, <project>/src)`. `M.summarize(scores, y)` is the standard report.
 - `Docs/data_dictionary.md` explains every raw column.
@@ -38,6 +40,11 @@ model on real CMS data, then add a small retrieval layer. Portfolio artifact sec
 ## Baseline to beat (03_evaluation, 2026-09-07)
 Best single column is max_abs_z: ROC AUC 0.604, AP 0.00012, precision@1000 = 0, precision@10000 = 0.0004
 (4 of 68 positives). All single-column scores have zero positives in their top 1,000.
+
+## Isolation forest result (04, 2026-09-09)
+AUC 0.629, AP 0.00011, precision@1000 = 0, 2 of 68 in top 10K. Median positive percentile 68.
+Clipping/log/rank transforms of z make no difference. Top of ranking = infusion pharmacies and
+oncologists (legit drug-unit billing). Lesson: anomalous != fraudulent. Supervised model is next.
 
 ## Conventions
 - Unit of analysis is the provider (NPI), never a single claim row.
