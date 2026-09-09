@@ -20,6 +20,12 @@ model on real CMS data, then add a small retrieval layer. Portfolio artifact sec
   scores the rule-based flags as the baseline.
 - `analysis_notebooks/04_unsupervised_iforest.ipynb` isolation forest on the 16 z-scores + has_em.
   Writes `scores_iforest` (npi, iforest_score; higher = more anomalous).
+- `analysis_notebooks/05_supervised_gbm.ipynb` HistGradientBoosting, stratified 5-fold OOF, permutation
+  importance, isotonic calibration. Writes `scores_gbm` (npi, gbm_score, gbm_calibrated) and
+  `database/models/gbm.joblib`.
+- `analysis_notebooks/06_langchain_explain.ipynb` Chroma store of HCPCS descriptions at
+  `database/chroma_hcpcs` (fastembed bge-small, CPU), retriever, LCEL chain to claude-opus-5 via
+  langchain-anthropic, bind_tools agent loop. Needs `.env` with ANTHROPIC_API_KEY (gitignored).
 - `src/metrics.py` is the fast version of those functions. Later notebooks `import metrics as M`
   after `sys.path.insert(0, <project>/src)`. `M.summarize(scores, y)` is the standard report.
 - `Docs/data_dictionary.md` explains every raw column.
@@ -44,7 +50,18 @@ Best single column is max_abs_z: ROC AUC 0.604, AP 0.00012, precision@1000 = 0, 
 ## Isolation forest result (04, 2026-09-09)
 AUC 0.629, AP 0.00011, precision@1000 = 0, 2 of 68 in top 10K. Median positive percentile 68.
 Clipping/log/rank transforms of z make no difference. Top of ranking = infusion pharmacies and
-oncologists (legit drug-unit billing). Lesson: anomalous != fraudulent. Supervised model is next.
+oncologists (legit drug-unit billing). Lesson: anomalous != fraudulent.
+
+## Gradient boosting result (05, 2026-09-09)
+OOF AUC 0.73 (folds 0.64 to 0.82, sd 0.09; a prior run gave 0.71, not bitwise reproducible),
+AP 0.00017, precision@1000 = 0, 2 of 68 in top 10K, median positive percentile 82. provider_type categorical is the top importance; ablation without it
+drops AUC to ~0.62, about one fold sd. class_weight=balanced makes raw probs ~0.9 at the top vs
+observed 0; isotonic collapses them to ~0.0003. Same-year feature/label leakage noted; temporal
+split with 2023 files is the next step.
+
+## LangChain notes (06)
+claude-opus-5 rejects `temperature` (400). Do not pass sampling params. fastembed downloads
+bge-small on first run. Chroma build ~6 min first time, cached after.
 
 ## Conventions
 - Unit of analysis is the provider (NPI), never a single claim row.

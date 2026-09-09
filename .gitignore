@@ -17,3 +17,6 @@ venv/
 .idea/
 Thumbs.db
 .DS_Store
+
+# API keys
+.env

@@ -28,9 +28,26 @@ Raw files and the DuckDB database are not in the repo. See `Docs/data_dictionary
    each paired with a robust z-score computed within provider specialty.
 4. **Evaluate.** ROC AUC and precision@k implemented by hand and checked against scikit-learn,
    because at a 1-in-20,000 base rate the choice of metric is the whole problem.
-5. **Model.** Isolation forest as the unsupervised baseline, gradient boosting on the labels.
-6. **Retrieve.** A small retrieval layer over HCPCS descriptions and exclusion narratives so a
-   flagged provider can be explained in plain language.
+5. **Model.** Isolation forest as the unsupervised baseline, then gradient boosting on the
+   labels with stratified 5-fold cross-validation and isotonic calibration.
+6. **Explain.** A LangChain retrieval layer over HCPCS code descriptions (Chroma, fastembed) and
+   an LCEL chain that merges database facts with retrieved context so Claude can brief an
+   investigator on a flagged provider. Plus a small tool-calling agent.
+
+## Results
+
+Out-of-fold, all 1.3M providers, 68 known positives.
+
+| model | ROC AUC | positives in top 1,000 | positives in top 10,000 | median percentile of positives |
+|---|---|---|---|---|
+| best single rule (max peer z-score) | 0.60 | 0 | 4 | 60 |
+| isolation forest, unsupervised | 0.63 | 0 | 2 | 68 |
+| gradient boosting, 5-fold OOF | 0.73 (fold sd 0.09) | 0 | 2 | 82 |
+
+Each step ranks the population better. None builds a short investigation queue. The most
+anomalous providers in Medicare are legitimate high-volume drug billers; the known fraud sits
+modestly off-normal on several features at once. The public files carry no claim dates,
+diagnoses, or beneficiary detail, which is where the next order of magnitude would come from.
 
 ## Layout
 
@@ -39,6 +56,8 @@ analysis_notebooks/01_load_and_label   load, explore, build labels table
 analysis_notebooks/02_features         build provider_features, rule-based flags
 analysis_notebooks/03_evaluation       metrics by hand, checked against sklearn, baseline
 analysis_notebooks/04_unsupervised     isolation forest, scored against labels
+analysis_notebooks/05_supervised       gradient boosting, stratified 5-fold, calibration
+analysis_notebooks/06_langchain        Chroma vector store, retriever, LCEL chain, tool agent
 src/metrics.py                         the metric functions later notebooks import
 scripts/build_database.py        rebuild the DuckDB from raw CSVs
 Docs/data_dictionary.md          every raw column, one line each
@@ -47,7 +66,9 @@ Docs/data_dictionary.md          every raw column, one line each
 ## Setup
 
 Python 3.11. Install with `pip install -r requirements.txt`, download the three files above into
-`data_raw/`, run `scripts/build_database.py`, then the notebooks in order.
+`data_raw/`, run `scripts/build_database.py`, then the notebooks in order. Notebook 06 needs an
+`ANTHROPIC_API_KEY` in a `.env` file at the project root; without one it prints the prompts
+it would have sent.
 
 ## Early findings
 
