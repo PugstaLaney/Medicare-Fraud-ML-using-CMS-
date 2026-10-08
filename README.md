@@ -1,9 +1,9 @@
 # Medicare Fraud ML using CMS
 
 Provider-level fraud, waste, and abuse (FWA) detection on public Medicare billing data.
-Built as a working refresher on ML fundamentals for program-integrity analytics: peer-group
-feature engineering, ranking metrics under extreme class imbalance, unsupervised anomaly
-detection, and supervised scoring against real exclusion outcomes.
+The pipeline covers peer-group feature engineering, ranking metrics under extreme class
+imbalance, unsupervised anomaly detection, supervised scoring against real exclusion outcomes,
+and a retrieval layer that explains flagged providers in plain language.
 
 ## Data
 
@@ -26,8 +26,8 @@ Raw files and the DuckDB database are not in the repo. See `Docs/data_dictionary
 3. **Features.** Sixteen size-independent ratios (services per beneficiary, E&M upcoding share,
    same-day repeat billing, charge-to-allowed, payment per beneficiary per risk score, and so on),
    each paired with a robust z-score computed within provider specialty.
-4. **Evaluate.** ROC AUC and precision@k implemented by hand and checked against scikit-learn,
-   because at a 1-in-20,000 base rate the choice of metric is the whole problem.
+4. **Evaluate.** ROC AUC and precision@k implemented in `src/metrics.py`, unit-tested against
+   scikit-learn, because at a 1-in-20,000 base rate the choice of metric is the whole problem.
 5. **Model.** Isolation forest as the unsupervised baseline, then gradient boosting on the
    labels with stratified 5-fold cross-validation and isotonic calibration.
 6. **Explain.** A LangChain retrieval layer over HCPCS code descriptions (Chroma, fastembed) and
@@ -54,7 +54,7 @@ diagnoses, or beneficiary detail, which is where the next order of magnitude wou
 ```
 analysis_notebooks/01_load_and_label   load, explore, build labels table
 analysis_notebooks/02_features         build provider_features, rule-based flags
-analysis_notebooks/03_evaluation       metrics by hand, checked against sklearn, baseline
+analysis_notebooks/03_evaluation       ranking metrics, checked against sklearn, rule baseline
 analysis_notebooks/04_unsupervised     isolation forest, scored against labels
 analysis_notebooks/05_supervised       gradient boosting, stratified 5-fold, calibration
 analysis_notebooks/06_langchain        Chroma vector store, retriever, LCEL chain, tool agent

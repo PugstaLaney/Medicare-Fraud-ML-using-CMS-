@@ -1,8 +1,7 @@
 # Medicare Fraud ML
 
-Interview prep project for the GDIT Healthcare Data Scientist (Medicare/Medicaid program
-integrity) role. Purpose: relearn ML fundamentals by building a provider-level fraud risk
-model on real CMS data, then add a small retrieval layer. Portfolio artifact second.
+Provider-level fraud, waste, and abuse risk model on public CMS Medicare billing data, labeled
+against OIG exclusions, with a LangChain retrieval layer that explains flagged providers.
 
 ## Environment
 - venv: `C:\Users\palla\venvs\medicare-fraud\` (Python 3.11). Run with
@@ -16,7 +15,7 @@ model on real CMS data, then add a small retrieval layer. Portfolio artifact sec
 - `scripts/build_database.py` rebuilds `database/medicare_fraud.duckdb` from the three CSVs.
 - `analysis_notebooks/01_load_and_label.ipynb` loads, explores, and writes the `labels` table.
 - `analysis_notebooks/02_features.ipynb` builds `provider_features` (incl. n_extreme, max_abs_z flags).
-- `analysis_notebooks/03_evaluation.ipynb` hand-implements ROC/AUC/precision@k/AP, checks vs sklearn,
+- `analysis_notebooks/03_evaluation.ipynb` implements ROC/AUC/precision@k/AP, checks vs sklearn,
   scores the rule-based flags as the baseline.
 - `analysis_notebooks/04_unsupervised_iforest.ipynb` isolation forest on the 16 z-scores + has_em.
   Writes `scores_iforest` (npi, iforest_score; higher = more anomalous).
@@ -66,6 +65,6 @@ bge-small on first run. Chroma build ~6 min first time, cached after.
 ## Conventions
 - Unit of analysis is the provider (NPI), never a single claim row.
 - Aggregate in DuckDB SQL, bring results into pandas.
-- Hand-implement the evaluation metrics (pair-counting AUC, precision@k) before using sklearn.
+- Evaluation metrics live in `src/metrics.py` and are checked against sklearn in `tests/`.
 - Absolute DB path in notebooks.
 - No em dashes in any text.
